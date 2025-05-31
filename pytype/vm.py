@@ -1638,6 +1638,25 @@ class VirtualMachine:
     return self._setup_except(state, op)
 
   def byte_POP_TOP(self, state, op):
+    value_on_stack = state.top()
+    found_coroutine = False
+    # Check if the node is None, which can happen in certain circumstances,
+    # although typically state.node should be valid. If state.node is None,
+    # it implies that there's no specific CFG node associated with the current
+    # state, which might occur in synthetic or detached states not directly
+    # tied to bytecode execution. In such cases, accessing Bindings might be
+    # problematic or lead to errors if Bindings expects a valid node.
+    # Defaulting to an empty list of bindings if state.node is None ensures
+    # robustness by preventing potential NoneType errors when trying to iterate
+    # over bindings that cannot be resolved without a valid CFG node context.
+    bindings = value_on_stack.Bindings(state.node) if state.node else []
+    for binding in bindings:
+      val = binding.data
+      if isinstance(val, abstract.Coroutine):
+        found_coroutine = True
+        break
+    if found_coroutine:
+      self.ctx.errorlog.unused_coroutine(self.frames)
     return state.pop_and_discard()
 
   def byte_DUP_TOP(self, state, op):
