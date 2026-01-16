@@ -500,9 +500,9 @@ class GeneratorFeatureTest(test_base.BaseTest):
             var.func()
           return res
 
-        func1(foo.f1())
-        func1(foo.f2())
-        func2(foo.f1())
+        _ = func1(foo.f1())
+        _ = func1(foo.f2())
+        _ = func2(foo.f1())
       """,
           pythonpath=[d.path],
       )
@@ -511,6 +511,8 @@ class GeneratorFeatureTest(test_base.BaseTest):
           """
         import foo
         from typing import Any, Awaitable, Coroutine, List
+
+        _: Coroutine[Any, Any, List[str]]
 
         def func1(x: Awaitable[str]) -> Coroutine[Any, Any, List[str]]: ...
         def func2(x: Coroutine[Any, Any, str]) -> Coroutine[Any, Any, List[str]]: ...
@@ -570,7 +572,7 @@ class GeneratorFeatureTest(test_base.BaseTest):
 
       async def main():
         queue = asyncio.Queue()
-        worker(queue)
+        _ = worker(queue)
     """)
     self.assertTypesMatchPytd(
         ty,
@@ -644,6 +646,33 @@ class GeneratorFeatureTest(test_base.BaseTest):
           if retval != retry_value:
             return retval
       """)
+
+  def test_ignored_coroutine(self):
+    self.CheckWithErrors("""
+      async def f():
+        pass
+
+      async def g():
+        f()  # unawaited-coroutine
+    """)
+
+  def test_ignored_coroutine_stored(self):
+    self.Check("""
+      async def f():
+        pass
+
+      async def g():
+        x = f()
+    """)
+
+  def test_ignored_coroutine_awaited(self):
+    self.Check("""
+      async def f():
+        pass
+
+      async def g():
+        await f()
+    """)
 
 
 if __name__ == "__main__":

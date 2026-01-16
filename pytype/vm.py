@@ -1638,7 +1638,13 @@ class VirtualMachine:
     return self._setup_except(state, op)
 
   def byte_POP_TOP(self, state, op):
-    return state.pop_and_discard()
+    if not state.data_stack:
+      return state
+    state, val = state.pop()
+    for v in val.data:
+      if isinstance(v, abstract.Coroutine):
+        self.ctx.errorlog.unawaited_coroutine(self.frames)
+    return state
 
   def byte_DUP_TOP(self, state, op):
     return state.push(state.top())

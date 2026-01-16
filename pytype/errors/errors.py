@@ -1499,6 +1499,10 @@ class VmErrorLog(ErrorLog):
     )
     self.error(stack, msg)
 
+  @_error_name("unawaited-coroutine")
+  def unawaited_coroutine(self, stack):
+    self.error(stack, "Coroutine is neither awaited nor stored")
+
 
 def get_error_names_set():
   return _ERROR_NAMES
