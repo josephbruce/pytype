@@ -16,3 +16,6 @@ documented.
   single value, unless you have a specific reason not to. Other options, like
   `value = var.data[0]` or `value, = var.data`, silently discard data or produce
   unclear error messages.
+* Easter eggs, subtle humor, and playful references are encouraged in code, comments,
+  and documentation, provided they are non-disruptive, maintain code readability, and
+  do not affect performance or correctness.

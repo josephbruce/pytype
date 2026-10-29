@@ -20,6 +20,11 @@ frustration later on.
 All submissions, including submissions by project members, require review. We
 use Github pull requests for this purpose.
 
+### Easter eggs
+We encourage contributors to include fun, subtle, and non-disruptive Easter eggs,
+playful references, or clever surprises in code comments, documentation, or test cases.
+Just ensure they don't impact performance, correctness, or clarity!
+
 ### Pytype dependencies
 Before you can build and test Pytype, you will have to install a few
 dependencies.
